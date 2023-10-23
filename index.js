@@ -70,11 +70,13 @@ const keys = {
 let lastKey
 
 const map = [
-    ['-', '-', '-', '-', '-', '-'],
-    ['-', ' ', ' ', ' ', ' ', '-'],
-    ['-', ' ', '-', '-', ' ', '-'],
-    ['-', ' ', ' ', ' ', ' ', '-'],
-    ['-', '-', '-', '-', '-', '-']
+    ['-', '-', '-', '-', '-', '-', '-'],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-'],
+    ['-', ' ', '-', ' ', '-', ' ', '-'],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-'],
+    ['-', ' ', '-', ' ', '-', ' ', '-'],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-'],
+    ['-', '-', '-', '-', '-', '-', '-']
 ]
 
 map.forEach((row,i) =>{ // una forma de iterar sobre un arreglo.
@@ -94,18 +96,29 @@ map.forEach((row,i) =>{ // una forma de iterar sobre un arreglo.
     })
 })
 
+function circleCollidesWithRectangle({circle,rectangle}){
+    return (
+        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.height && 
+        circle.position.x + circle.radius + circle.velocity.x >= rectangle.position.x && 
+        circle.position.y + circle.radius + circle.velocity.y >= rectangle.position.y && 
+        circle.position.x - circle.radius + circle.velocity.x <= rectangle.position.x + rectangle.width
+        )
+}
+
 function animate() {
     requestAnimationFrame(animate)
     c.clearRect(0, 0, canvas.width, canvas.height)
-    boundaries.forEach((boundary) => { //recorriendo cada elemento del arreglo boundaries
-        boundary.draw()                //y llamando al meto draw para dibujar los cubitos
-    })
-    player.update()
-    player.velocity.x = 0
-    player.velocity.y = 0
 
     if (keys.w.pressed && lastKey === 'w'){
-        player.velocity.y = -5
+        boundaries.forEach((boundary) => {
+            if(
+                circleCollidesWithRectangle({circle: player, rectangle: boundary})
+            ){
+                player.velocity.y = 0
+            } else {
+                player.velocity.y = -5
+            }
+        })
     }else if(keys.a.pressed && lastKey === 'a'){
         player.velocity.x = -5
     }else if(keys.s.pressed && lastKey === 's'){
@@ -113,6 +126,23 @@ function animate() {
     }else if(keys.d.pressed && lastKey === 'd'){
         player.velocity.x = 5
     }
+
+    boundaries.forEach((boundary) => { //recorriendo cada elemento del arreglo boundaries
+        boundary.draw()                //y llamando al meto draw para dibujar los cubitos
+        
+        if (
+            circleCollidesWithRectangle({circle: player,rectangle: boundary})
+            ){
+            
+                console.log('we are colliding')
+                player.velocity.x = 0
+                player.velocity.y = 0
+                
+        }
+    })
+    player.update()
+    //player.velocity.x = 0
+    //player.velocity.y = 0
 }
 
 animate()
