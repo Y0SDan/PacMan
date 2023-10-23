@@ -4,11 +4,11 @@ const c = canvas.getContext('2d') //contexto de renderizado 2d nos da metodos y 
 canvas.width = innerWidth   //ancho y altura internos de la ventan del navegador
 canvas.height = innerHeight
 
-class Boundary {
+class Boundary {    
     static width = 40
     static height = 40
-    constructor({position,velocity}){
-        this.position = position; //esta propiedad es un objeto que tiene las variables x e y;
+    constructor({position}){
+        this.position = position //esta propiedad es un objeto que tiene las variables x e y;
         this.width = 40 //establecemos el ancho y la altura de la isntacia boundary
         this.height = 40
     }
@@ -19,6 +19,28 @@ class Boundary {
     }
 }   
 
+class Player{
+    constructor({position,velocity}){
+        this.position = position
+        this.velocity = velocity
+        this.radius = 10
+    }
+
+    draw(){
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = 'yellow'
+        c.fill()
+        c.closePath()
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+}
+
 const map = [
     ['-', '-', '-', '-', '-', '-'],
     ['-', ' ', ' ', ' ', ' ', '-'],
@@ -27,6 +49,16 @@ const map = [
     ['-', '-', '-', '-', '-', '-']
 ]
 const boundaries = [] //arreglo vacío que va a almacenar instancias de la clase Boundary
+const player = new Player({
+    position:{
+        x: Boundary.width + Boundary.width / 2,
+        y: Boundary.width + Boundary.width / 2
+    },
+    velocity:{
+        x: 0,
+        y: 0
+    }
+})
 
 map.forEach((row,i) =>{ // una forma de iterar sobre un arreglo.
     row.forEach((symbol, j) => { //symbol es el valor del elemento actual del arreglo, j es el índice del elemento actual del arreglo.
@@ -45,35 +77,32 @@ map.forEach((row,i) =>{ // una forma de iterar sobre un arreglo.
     })
 })
 
-boundaries.forEach((boundary) => { //recorriendo cada elemento del arreglo boundaries
-    boundary.draw()                //y llamando al meto draw para dibujar los cubitos
-})
-/*otra forma ineficiente de dibujar el mapa
-const boundaries = [
-    new Boundary({
-        position: {
-            x: 0,
-            y: 0
-        }
-    }),
-    new Boundary({
-        position: {
-            x: 41,
-            y: 0
-        }
-    }),
-]
+function animate() {
+    requestAnimationFrame(animate)
+    boundaries.forEach((boundary) => { //recorriendo cada elemento del arreglo boundaries
+        boundary.draw()                //y llamando al meto draw para dibujar los cubitos
+    })
+    
+    player.update()
+}
 
-boundaries.forEach((Boundary) =>{
-    Boundary.draw()
-})*/
+animate()
 
-/*const boundary = new Boundary({ //creando nueva instancia de clase Boundary (limite/frontera)
-    position: {                 //pasando un objeto con una propiedad position que es un objeto
-        x: 0,                   //con las propiedades x e y establecidas en 0
-        y: 0
+addEventListener('keydown', ({key}) => {
+    switch (key){
+        case 'w':
+            player.velocity.y = -5
+            break
+        case 'a':
+            player.velocity.x = -5
+            break            
+        case 's':
+            player.velocity.y = 5
+            break
+        case 'd':
+            player.velocity.x = 5
+            break                            
     }
+
+    console.log(player.velocity)
 })
-
-boundary.draw() //dibuja el rectangulo en el lienzo*/
-
